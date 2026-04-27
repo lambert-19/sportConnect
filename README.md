@@ -89,8 +89,8 @@ python scripts/admin/admin.py health-check
 
 | Service | URL | Identifiants |
 |---------|-----|--------------|
-| PostgreSQL | `localhost:5432` | `postgres:#ibrahimaNDAW19` |
-| Neo4j Browser | `http://localhost:7474` | `neo4j:password` |
+| PostgreSQL | `localhost:5432` | `postgres:yourpassword` |
+| Neo4j Browser | `http://localhost:7474` | `neo4j:yourpassword` |
 | InfluxDB UI | `http://localhost:8086` | Token: `dev-token-changeme` |
 | Grafana Cloud | `https://ibrahima19.grafana.net` | Voir configuration |
 
