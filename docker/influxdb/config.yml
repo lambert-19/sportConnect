@@ -1,0 +1,31 @@
+# =============================================================
+# SportConnect — InfluxDB 2.7 Configuration
+# En production : InfluxDB Cloud Serverless (GCP eu-west1)
+# =============================================================
+
+bolt-path: /var/lib/influxdb2/influxd.bolt
+engine-path: /var/lib/influxdb2/engine
+
+# ------- HTTP -------
+http-bind-address: :8086
+http-idle-timeout: 3m
+http-read-header-timeout: 10s
+http-read-timeout: 0s
+http-write-timeout: 0s
+
+# ------- Stockage TSM -------
+storage-cache-max-memory-size: 1073741824   # 1Go (cache en mémoire avant flush)
+storage-cache-snapshot-memory-size: 26214400  # 25Mo : snapshot si cache dépasse
+storage-wal-fsync-delay: 0s                 # fsync immédiat (durabilité max)
+storage-compact-throughput-burst: 67108864  # 64Mo/s de compaction
+
+# ------- Rétention (buckets définis via scripts Python) -------
+# sensor_data  : 2160h  (90 jours)  — données brutes capteurs
+# sensor_1h    : 8760h  (1 an)      — agrégats horaires
+# sensor_daily : 43800h (5 ans)     — agrégats journaliers
+
+# ------- Logs -------
+log-level: info
+
+# ------- Télémétrie désactivée -------
+reporting-disabled: true

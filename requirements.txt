@@ -1,0 +1,30 @@
+# SportConnect — Dépendances Python
+# Installation : pip install -r requirements.txt
+
+# PostgreSQL
+psycopg2-binary==2.9.9
+
+# MongoDB
+pymongo==4.7.2
+motor==3.4.0              # driver async (optionnel, pour FastAPI)
+
+# Neo4j
+neo4j==5.19.0
+
+# InfluxDB
+influxdb-client==1.43.0
+
+# Redis
+redis==5.0.4
+
+# Elasticsearch
+elasticsearch==8.13.0
+
+# Kafka
+confluent-kafka==2.4.0
+
+# HTTP (health checks, Elasticsearch)
+requests==2.32.2
+
+# Utilitaires
+python-dotenv==1.0.1      # Chargement des .env en développement

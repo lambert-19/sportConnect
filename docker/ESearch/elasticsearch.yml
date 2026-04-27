@@ -1,0 +1,42 @@
+# =============================================================
+# SportConnect — Elasticsearch 8 Configuration
+# En production : Elastic Cloud on GCP (europe-west1)
+# =============================================================
+
+cluster.name: sportconnect-dev
+node.name: sc-node-1
+
+# ------- Chemins -------
+path.data: /usr/share/elasticsearch/data
+path.logs: /usr/share/elasticsearch/logs
+
+# ------- Réseau -------
+network.host: 0.0.0.0
+http.port: 9200
+transport.port: 9300
+
+# ------- Découverte (mode single-node pour dev) -------
+discovery.type: single-node
+
+# ------- Sécurité (désactivée en dev, activée en prod via Elastic Cloud) -------
+xpack.security.enabled: false
+xpack.security.http.ssl.enabled: false
+
+# ------- Mémoire -------
+# Heap configuré via ES_JAVA_OPTS dans docker-compose (-Xms512m -Xmx512m)
+# Règle : heap ≤ 50% RAM ET ≤ 32GB (compressed oops)
+
+# ------- Index par défaut -------
+action.auto_create_index: "false"  # Interdire la création auto (sécurité)
+action.destructive_requires_name: true  # Interdit DELETE * sans nom explicite
+
+# ------- ILM (Index Lifecycle Management) -------
+# Politique hot/warm/cold/delete définie via script Python d'init
+# hot    : 0-30j   — données récentes, haute performance
+# warm   : 30-180j — requêtes occasionnelles, 1 shard
+# cold   : 180j-1an — archivage, lecture uniquement
+# delete : > 1an
+
+# ------- Analyseurs configurés via mapping (voir elasticsearch_setup.py) -------
+# Analyseur "french" + asciifolding : "Vélo" → "velo", "VELO"
+# Edge n-gram tokenizer : autocomplétion dès 2 caractères

@@ -1,0 +1,17 @@
+apiVersion: 1
+
+datasources:
+  - name: PostgreSQL
+    type: postgres
+    access: proxy
+    url: 172.18.0.4:5432
+    database: sportconnect
+    user: postgres
+    password: "#ibrahimaNDAW19"
+    enabled: true
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1200
+      timescaledb: false
+    secureJsonData:
+      password: "#ibrahimaNDAW19"

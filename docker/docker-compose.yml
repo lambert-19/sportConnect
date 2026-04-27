@@ -1,0 +1,130 @@
+# ============================================================
+# SportConnect — Stack locale de développement
+# Services Cloud (Non inclus) : MongoDB, InfluxDB, Redis, Elasticsearch, Grafana
+# Services Locaux (Docker) : PostgreSQL, Neo4j, Kafka, Telegraf
+# Usage : docker compose up -d
+# ============================================================
+
+services:
+
+  # ----------------------------------------------------------
+  # PostgreSQL 16 + PostGIS + pgcrypto
+  # ----------------------------------------------------------
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: sc_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "#ibrahimaNDAW19"
+      POSTGRES_DB: sportconnect
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C.UTF-8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ../scripts/sql:/docker-entrypoint-initdb.d:ro
+    command: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d sportconnect"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ----------------------------------------------------------
+  # Neo4j 5
+  # ----------------------------------------------------------
+  neo4j:
+    image: neo4j:5
+    container_name: sc_neo4j
+    restart: unless-stopped
+    environment:
+      NEO4J_AUTH: neo4j/changeme_dev
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_dbms_memory_heap_initial__size: 512m
+      NEO4J_dbms_memory_heap_max__size: 1G
+      NEO4J_dbms_memory_pagecache_size: 512m
+    ports:
+      - "7474:7474"   # HTTP Browser
+      - "7687:7687"   # Bolt
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    healthcheck:
+      test: ["CMD", "neo4j", "status"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  # ----------------------------------------------------------
+  # Kafka 4.1.2 (Zookeeper bundled internally)
+  # ----------------------------------------------------------
+  kafka:
+    image: confluentinc/cp-kafka:4.1.2
+    container_name: sc_kafka
+    restart: unless-stopped
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: localhost:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://sc_kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_RETENTION_HOURS: 24
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  # ----------------------------------------------------------
+  # Grafana (backup local - option alternative)
+  # ----------------------------------------------------------
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: sc_grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+
+  # ----------------------------------------------------------
+  # Telegraf (Agent de collecte Kafka -> InfluxDB Cloud)
+  # ----------------------------------------------------------
+  telegraf:
+    image: telegraf:latest
+    container_name: sc_telegraf
+    restart: unless-stopped
+    volumes:
+      # Montage du fichier de conf
+      - ../config/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    environment:
+      - INFLUXDB_URL=${INFLUXDB_URL}
+      - INFLUXDB_TOKEN=${INFLUXDB_TOKEN}
+      - INFLUXDB_ORG=${INFLUXDB_ORG}
+      - INFLUXDB_BUCKET=${INFLUXDB_BUCKET}
+    depends_on:
+      - kafka
+
+volumes:
+  postgres_data:
+  neo4j_data:
+  neo4j_logs:
+  kafka_data:
+  grafana_data:
+
+networks:
+  default:
+    name: sportconnect_network
