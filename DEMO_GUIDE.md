@@ -30,7 +30,7 @@ docker compose ps
 
 ```bash
 # Test PostgreSQL
-python -c "import psycopg2; conn = psycopg2.connect('postgresql://postgres:#ibrahimaNDAW19@localhost:5432/sportconnect'); print('✅ PostgreSQL OK'); conn.close()"
+python -c "import psycopg2; conn = psycopg2.connect('postgresql://postgres:yourpassword@localhost:5432/sportconnect'); print('✅ PostgreSQL OK'); conn.close()"
 
 # Test Neo4j
 python -c "from neo4j import GraphDatabase; driver = GraphDatabase.driver('bolt://localhost:7687', auth=('neo4j', '#ibrahimaNDAW19')); driver.verify_connectivity(); print('✅ Neo4j OK'); driver.close()"
@@ -133,7 +133,7 @@ write_api.write(bucket="sportconnect", record=point)
 #### 4.1 Neo4j Browser
 ```
 URL: http://localhost:7474
-Login: neo4j / #ibrahimaNDAW19
+Login: neo4j / yourpassword
 
 Requête de démo:
 MATCH (u:User)-[r:FOLLOWS|LIKED]->(v)
@@ -143,7 +143,7 @@ RETURN u, r, v LIMIT 10;
 #### 4.2 Grafana Dashboard
 ```
 URL: http://localhost:3000
-Login: admin / admin
+Login: admin / admin by default
 
 Dashboard à montrer:
 - Métriques de performance des bases
